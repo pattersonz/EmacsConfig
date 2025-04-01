@@ -65,6 +65,13 @@
   :diminish
   :config (counsel-mode))
 
+(use-package golden-ratio :ensure t
+  :config
+  (golden-ratio-mode 1))
+
+(use-package solaire-mode :ensure t
+  :hook (after-init . global-solaire-mode))
+
 (use-package vertico :ensure
   :config (vertico-mode))
 (use-package dirvish
@@ -83,25 +90,26 @@
   :bind ; Bind `dirvish-fd|dirvish-side|dirvish-dwim' as you see fit
   (("C-c f" . dirvish)
    :map dirvish-mode-map          ; Dirvish inherits `dired-mode-map'
-   ;; (";" . dired-up-directory)  ; So you can adjust dired bindings here
-   ("?"   . dirvish-dispatch)     ; contains most of sub-menus in dirvish extensions
-   ("f"   . dirvish-history-go-forward)
-   ("b"   . dirvish-history-go-backward)
-   ("y"   . dirvish-yank-menu)
-   ("N"   . dirvish-narrow)
-   ("^"   . dirvish-history-last)
-   ("s"   . dirvish-setup-menu)   ; `sf' toggles fullframe, `st' toggles mtime, etc.
-   ("h"   . dirvish-history-jump) ; remapped `describe-mode'
-   ("r"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-   ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-   ("TAB" . dirvish-subtree-toggle)
-   ("M-a" . dirvish-quick-access)
-   ("M-f" . dirvish-file-info-menu)
-   ("M-l" . dirvish-ls-switches-menu)
-   ("M-m" . dirvish-mark-menu)
-   ("M-t" . dirvish-layout-toggle)
-   ("M-e" . dirvish-emerge-menu)
-   ("M-j" . dirvish-fd-jump)))
+   ("C-<left>"  . dired-up-directory)  ; So you can adjust dired bindings here
+   ("f"         . dirvish-new-empty-file-a)
+   ("?"         . dirvish-dispatch)     ; contains most of sub-menus in dirvish extensions
+   ("M-<right>" . dirvish-history-go-forward)
+   ("M-<left>"  . dirvish-history-go-backward)
+   ("y"         . dirvish-yank-menu)
+   ("N"         . dirvish-narrow)
+   ("^"         . dirvish-history-last)
+   ("s"         . dirvish-setup-menu)   ; `sf' toggles fullframe, `st' toggles mtime, etc.
+   ("h"         . dirvish-history-jump) ; remapped `describe-mode'
+   ("r"         . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+   ("v"         . dirvish-vc-menu)      ; remapped `dired-view-file'
+   ("TAB"       . dirvish-subtree-toggle)
+   ("M-a"       . dirvish-quick-access)
+   ("M-f"       . dirvish-file-info-menu)
+   ("M-l"       . dirvish-ls-switches-menu)
+   ("M-m"       . dirvish-mark-menu)
+   ("M-t"       . dirvish-layout-toggle)
+   ("M-e"       . dirvish-emerge-menu)
+   ("M-j"       . dirvish-fd-jump)))
  
 (use-package dashboard
   :ensure t 
@@ -128,13 +136,15 @@
   :config
   (projectile-mode 1))
 
- 
+(use-package rainbow-delimiters :ensure t) 
+
+
 ;;Extra Settings
 (setq make-backup-files nil)
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode t)
-     
-;; elisp and languages
+
+;; lsp and languages
 (load-user-file "langs.el")
 
 ;; Bindings
@@ -168,8 +178,9 @@
 
 ;; Theme
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
-
-(add-to-list 'default-frame-alist '(alpha-background . 90))
+(if (display-graphic-p)
+    (set-frame-font "3270NerdFontMono-Regular 34" nil t)
+  (set-frame-font "3270NerdFontMono-Regular 17" nil t))
 
 
 
@@ -181,19 +192,23 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(dired-auto-revert-buffer t)
  '(dirvish-attributes
    '(vc-state subtree-state file-time file-size nerd-icons collapse
 	      git-msg))
+ '(dirvish-override-dired-mode t)
  '(evil-mode t)
  '(evil-split-window-below t)
  '(evil-want-keybinding nil)
- '(global-tree-sitter-mode t))
+ '(global-display-line-numbers-mode t)
+ '(global-tree-sitter-mode t)
+ '(scroll-bar-mode nil)
+ '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t nil)))
  '(button ((t (:foreground "darkorange4"))))
  '(custom-face-tag ((t (:inherit custom-variable-tag :foreground "darkslategray"))))
  '(custom-group-tag ((t (:inherit variable-pitch :foreground "darkolivegreen" :weight bold :height 1.2))))
@@ -206,6 +221,22 @@
  '(link ((t (:foreground "darkslateblue" :underline t))))
  '(lsp-rust-analyzer-async-modifier-face ((t (:foreground "indianred"))))
  '(lsp-rust-analyzer-mutable-modifier-face ((t (:underline "seagreen"))))
+ '(rainbow-delimiters-base-error-face ((t (:inherit rainbow-delimiters-base-face :background "indian red" :foreground "light gray"))))
+ '(rainbow-delimiters-depth-1-face ((t (:inherit rainbow-delimiters-base-face :foreground "dark red"))))
+ '(rainbow-delimiters-depth-2-face ((t (:inherit rainbow-delimiters-base-face :foreground "chocolate"))))
+ '(rainbow-delimiters-depth-3-face ((t (:inherit rainbow-delimiters-base-face :foreground "LightGoldenrod2"))))
+ '(rainbow-delimiters-depth-4-face ((t (:inherit rainbow-delimiters-base-face :foreground "dark green"))))
+ '(rainbow-delimiters-depth-5-face ((t (:inherit rainbow-delimiters-base-face :foreground "dark blue"))))
+ '(rainbow-delimiters-depth-6-face ((t (:inherit rainbow-delimiters-base-face :foreground "blue violet"))))
+ '(rainbow-delimiters-depth-7-face ((t (:inherit rainbow-delimiters-base-face :foreground "DarkOrchid4"))))
+ '(rainbow-delimiters-depth-8-face ((t (:inherit rainbow-delimiters-base-face :foreground "white smoke"))))
+ '(rainbow-delimiters-depth-9-face ((t (:inherit rainbow-delimiters-base-face :foreground "gray28"))))
  '(rust-ampersand-face ((t (:inherit default :foreground "darkolivegreen"))))
  '(shadow ((t (:foreground "lightslategray"))))
+ '(tree-sitter-hl-face:attribute ((t (:inherit font-lock-preprocessor-face :foreground "LightSkyBlue4"))))
+ '(tree-sitter-hl-face:constant ((t (:inherit font-lock-constant-face :foreground "dark magenta"))))
+ '(tree-sitter-hl-face:function.macro ((t (:inherit font-lock-preprocessor-face :foreground "dark green"))))
+ '(tree-sitter-hl-face:punctuation.delimiter ((t (:inherit tree-sitter-hl-face:punctuation :foreground "dark blue"))))
  '(warning ((t (:foreground "maroon" :weight extra-bold)))))
+
+(put 'upcase-region 'disabled nil)

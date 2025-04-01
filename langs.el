@@ -4,9 +4,11 @@
   :if (executable-find "tree-sitter")
   :hook (((rustic-mode
            python-mode
+	   zig-mode
            ) . tree-sitter-mode)
          ((rustic-mode
            python-mode
+	   zig-mode
            ) . tree-sitter-hl-mode)))
 
 (use-package tree-sitter-langs
@@ -25,7 +27,8 @@
   ;; what to use when checking on-save. "check" is default, I prefer clippy
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   (lsp-eldoc-render-all nil)
-  (lsp-idle-delay 0.6)
+  (lsp-idle-delay 3)
+  (lsp-completion-mode nil)
   ;; This controls the overlays that display type and other hints inline. Enable
   ;; / disable as you prefer. Well require a `lsp-workspace-restart' to have an
   ;; effect on open projects.
@@ -114,28 +117,28 @@
   :ensure
   :init (exec-path-from-shell-initialize))
 
-(when (executable-find "lldb-mi")
-  (use-package dap-mode
-    :ensure
-    :config
-    (dap-ui-mode)
-    (dap-ui-controls-mode 1)
+(use-package dap-mode
+  :ensure
+  :config
+  (dap-ui-mode)
+  (dap-ui-controls-mode 1)
+  
+  (require 'dap-gdb)
+  (require 'dap-lldb)
+  (require 'dap-gdb-lldb)
+  ;; installs .extension/vscode
+  (dap-gdb-lldb-setup)
+  (dap-register-debug-template
+   "Rust::LLDB Run Configuration"
+   (list :type "lldb"
+         :request "launch"
+         :name "LLDB::Run"
+	 :gdbpath "rust-lldb"
+         ;; uncomment if lldb-mi is not in PATH
+         ;; :lldbmipath "path/to/lldb-mi"
+         )))
 
-    (require 'dap-lldb)
-    (require 'dap-gdb-lldb)
-    ;; installs .extension/vscode
-    (dap-gdb-lldb-setup)
-    (dap-register-debug-template
-     "Rust::LLDB Run Configuration"
-     (list :type "lldb"
-           :request "launch"
-           :name "LLDB::Run"
-	   :gdbpath "rust-lldb"
-           ;; uncomment if lldb-mi is not in PATH
-           ;; :lldbmipath "path/to/lldb-mi"
-           ))))
-
-;;Rust
+;; Rust
 (use-package rustic
   :ensure
   :bind (:map rustic-mode-map
@@ -154,8 +157,10 @@
    (setq lsp-signature-auto-activate nil)
 
   ;; comment to disable rustfmt on save
-  (setq rustic-format-on-save t)
-  (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
+  (setq rustic-format-on-save nil)
+  (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
+  (add-hook 'rustic-mode-hook 'rainbow-delimiters-mode)
+  )
 
 (defun rk/rustic-mode-hook ()
   ;; so that run C-c C-c C-r works without having to confirm, but don't try to
@@ -165,3 +170,10 @@
   (when buffer-file-name
     (setq-local buffer-save-without-query t))
   (add-hook 'before-save-hook 'lsp-format-buffer nil t))
+
+;; Zig
+(use-package zig-mode 
+  :ensure t
+  :config
+  (add-hook 'zig-mode-hook 'rainbow-delimiters-mode)
+)
